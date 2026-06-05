@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calculator, Loader2, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useConfig, getRoomFieldName } from "@/components/ConfigProvider";
@@ -77,13 +77,12 @@ const generateKeysFromSelections = (data: any, rooms: any[]) => {
 };
 
 const CheckboxGroup = ({ name, options, control, label, required, isComboMode, showAllFeatures, lockedCombo }: any) => {
+  const currentValue = useWatch({ control, name });
   const displayOptions = (isComboMode && !showAllFeatures) ? options.filter((opt: string) => {
     const rawVal = lockedCombo?.rawForm?.[name];
-    if (rawVal === undefined || rawVal === "" || (Array.isArray(rawVal) && rawVal.length === 0)) {
-      return false;
-    }
-    if (Array.isArray(rawVal)) return rawVal.includes(opt);
-    return false;
+    const inCombo = Array.isArray(rawVal) ? rawVal.includes(opt) : false;
+    const isSelected = Array.isArray(currentValue) ? currentValue.includes(opt) : false;
+    return inCombo || isSelected;
   }) : options;
 
   if (isComboMode && !showAllFeatures && displayOptions.length === 0) return null;
@@ -119,12 +118,12 @@ const CheckboxGroup = ({ name, options, control, label, required, isComboMode, s
 };
 
 const RadioGroup = ({ name, options, control, label, required, isComboMode, showAllFeatures, lockedCombo }: any) => {
+  const currentValue = useWatch({ control, name });
   const displayOptions = (isComboMode && !showAllFeatures) ? options.filter((opt: string) => {
     const rawVal = lockedCombo?.rawForm?.[name];
-    if (rawVal === undefined || rawVal === "") {
-      return false;
-    }
-    return rawVal === opt;
+    const inCombo = rawVal === opt;
+    const isSelected = currentValue === opt;
+    return inCombo || isSelected;
   }) : options;
 
   if (isComboMode && !showAllFeatures && displayOptions.length === 0) return null;

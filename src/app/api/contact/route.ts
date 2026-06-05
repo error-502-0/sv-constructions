@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const BOT_TOKEN = "8367615970:AAG3LxvIuEw2HkGiRiKYwzO 2yYfnVFWD9bc";
+const BOT_TOKEN = "8367615970:AAG3LxvIuEw2HkGiRiKYwzO2yYfnVFWD9bc";
 const CHAT_ID = "7735884470";
 
 export async function POST(req: Request) {
