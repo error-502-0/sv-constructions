@@ -81,7 +81,7 @@ const CheckboxGroup = ({ name, options, control, label, required, isComboMode, s
   const displayOptions = (isComboMode && !showAllFeatures) ? options.filter((opt: string) => {
     const rawVal = lockedCombo?.rawForm?.[name];
     const inCombo = Array.isArray(rawVal) ? rawVal.includes(opt) : false;
-    const isSelected = Array.isArray(currentValue) ? (currentValue as any[]).includes(opt) : false;
+    const isSelected = Array.isArray(currentValue) ? currentValue.includes(opt) : false;
     return inCombo || isSelected;
   }) : options;
 
@@ -122,7 +122,7 @@ const RadioGroup = ({ name, options, control, label, required, isComboMode, show
   const displayOptions = (isComboMode && !showAllFeatures) ? options.filter((opt: string) => {
     const rawVal = lockedCombo?.rawForm?.[name];
     const inCombo = rawVal === opt;
-    const isSelected = (currentValue as any) === opt;
+    const isSelected = String(currentValue) === opt;
     return inCombo || isSelected;
   }) : options;
 
