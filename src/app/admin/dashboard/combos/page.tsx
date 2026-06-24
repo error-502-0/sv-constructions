@@ -141,6 +141,7 @@ export default function OwnerDashboard() {
   });
 
   const [itemPrices, setItemPrices] = useState<Record<string, number>>({});
+  const [initialItemPrices, setInitialItemPrices] = useState<Record<string, number>>({});
   const [savedCombos, setSavedCombos] = useState<Combo[]>([]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -148,12 +149,15 @@ export default function OwnerDashboard() {
   const [errorMsg, setErrorMsg] = useState("");
   const [isFetchingData, setIsFetchingData] = useState(true);
 
+  const hasUnsavedChanges = JSON.stringify(itemPrices) !== JSON.stringify(initialItemPrices);
+
   useEffect(() => {
     const loadData = async () => {
       setIsFetchingData(true);
       const [fetchedCombos, fetchedPrices] = await Promise.all([fetchCombos(), fetchItemPrices()]);
       setSavedCombos(fetchedCombos);
       setItemPrices(fetchedPrices);
+      setInitialItemPrices(fetchedPrices);
       setIsFetchingData(false);
     };
     loadData();
@@ -222,6 +226,7 @@ export default function OwnerDashboard() {
     setIsSubmitting(true);
     try {
       await saveItemPrices(itemPrices);
+      setInitialItemPrices(itemPrices);
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 3000);
     } catch (err: any) {
@@ -470,38 +475,50 @@ export default function OwnerDashboard() {
                 <ChevronLeft size={18} /> Previous
               </button>
               
-              <div className="text-white/40 text-sm font-medium">
+              <div className="text-white/40 text-sm font-medium hidden sm:block">
                 Step {step} of {totalSteps}
               </div>
 
-              {step < totalSteps ? (
-                <button
-                  type="button"
-                  onClick={() => setStep(prev => prev + 1)}
-                  className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-[#d4af37]/20 hover:bg-[#d4af37]/30 text-[#d4af37] border border-[#d4af37]/30 hover:border-[#d4af37]/50"
-                >
-                  Next <ChevronRight size={18} />
-                </button>
-              ) : (
-                activeTab === "combos" ? (
-                  <button
-                    type="button"
-                    onClick={handleSubmit(onComboSubmit)}
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-[#d4af37] text-black hover:bg-[#b08d29] disabled:opacity-50"
-                  >
-                    {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} {editingComboId ? 'Update Combo' : 'Save Combo'}
-                  </button>
-                ) : (
+              <div className="flex items-center gap-3">
+                {activeTab === "prices" && hasUnsavedChanges && step < totalSteps && (
                   <button
                     onClick={savePrices}
                     disabled={isSubmitting}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-[#d4af37] text-black hover:bg-[#b08d29] disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-3 rounded-xl font-bold transition-all bg-green-500 hover:bg-green-600 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]"
                   >
-                    {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Prices
+                    {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Changes
                   </button>
-                )
-              )}
+                )}
+                
+                {step < totalSteps ? (
+                  <button
+                    type="button"
+                    onClick={() => setStep(prev => prev + 1)}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-[#d4af37]/20 hover:bg-[#d4af37]/30 text-[#d4af37] border border-[#d4af37]/30 hover:border-[#d4af37]/50"
+                  >
+                    Next <ChevronRight size={18} />
+                  </button>
+                ) : (
+                  activeTab === "combos" ? (
+                    <button
+                      type="button"
+                      onClick={handleSubmit(onComboSubmit)}
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-[#d4af37] text-black hover:bg-[#b08d29] disabled:opacity-50"
+                    >
+                      {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} {editingComboId ? 'Update Combo' : 'Save Combo'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={savePrices}
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all bg-[#d4af37] text-black hover:bg-[#b08d29] disabled:opacity-50"
+                    >
+                      {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />} Save Prices
+                    </button>
+                  )
+                )}
+              </div>
             </div>
           </div>
 

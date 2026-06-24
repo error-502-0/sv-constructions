@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronLeft, ChevronRight, CheckCircle2, Calculator, Loader2 } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, CheckCircle2, Calculator, Loader2, FileText } from "lucide-react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -135,6 +135,8 @@ export function SideQuoteTab() {
   const [isFetchingData, setIsFetchingData] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [floorPlan, setFloorPlan] = useState<File | null>(null);
+  const [isInteractingWithUpload, setIsInteractingWithUpload] = useState(false);
   const config = useConfig();
 
   useEffect(() => {
@@ -233,11 +235,11 @@ export function SideQuoteTab() {
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     const hasSubmitted = sessionStorage.getItem("quote_submitted");
-    if (isValid && !isSubmitting && !submitted && !hasSubmitted && step === totalSteps) {
+    if (isValid && !isSubmitting && !submitted && !hasSubmitted && step === totalSteps && !isInteractingWithUpload && !floorPlan) {
       timeoutId = setTimeout(() => { handleAutoSubmit(watchAllFields); }, 2500);
     }
     return () => clearTimeout(timeoutId);
-  }, [isValid, watchAllFields, isSubmitting, submitted, step]);
+  }, [isValid, watchAllFields, isSubmitting, submitted, step, isInteractingWithUpload, floorPlan]);
 
   const handleAutoSubmit = async (data: any) => {
     setIsSubmitting(true);
@@ -281,11 +283,23 @@ ${roomsString}
 
 <i>I would like to discuss this project further.</i>`;
     try {
-      await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-      });
+      if (floorPlan) {
+        const formData = new FormData();
+        formData.append("message", message);
+        formData.append("file", floorPlan);
+
+        await fetch("/api/contact", {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+      }
+      
       sessionStorage.setItem("quote_submitted", "true");
       setSubmitted(true);
       reset();
@@ -411,6 +425,46 @@ ${roomsString}
                   })}
                 </div>
               )} />
+            </div>
+
+            {/* Floor Plan Upload Section */}
+            <div className="mt-6 p-4 rounded-xl border border-[#d4af37]/30 bg-[#d4af37]/5">
+              <h4 className="text-[#d4af37] font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
+                <FileText size={16} /> Upload your floor plan (Optional)
+              </h4>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <input 
+                  type="file" 
+                  accept=".pdf,image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setFloorPlan(e.target.files[0]);
+                    } else {
+                      setFloorPlan(null);
+                    }
+                  }}
+                  onFocus={() => setIsInteractingWithUpload(true)}
+                  onClick={() => setIsInteractingWithUpload(true)}
+                  className="text-xs text-white/70 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#d4af37]/20 file:text-[#d4af37] hover:file:bg-[#d4af37]/30 transition-colors w-full cursor-pointer"
+                />
+                {(isInteractingWithUpload || floorPlan) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsInteractingWithUpload(true);
+                      handleAutoSubmit(watchAllFields);
+                    }}
+                    disabled={isSubmitting || !isValid}
+                    className={`px-6 py-2 rounded-full font-bold text-xs uppercase tracking-wider transition whitespace-nowrap mt-2 sm:mt-0 ${
+                      (isSubmitting || !isValid) 
+                        ? 'bg-white/10 text-white/30 cursor-not-allowed' 
+                        : 'bg-[#d4af37] text-black hover:bg-yellow-400 cursor-pointer shadow-[0_0_15px_rgba(212,175,55,0.4)]'
+                    }`}
+                  >
+                    OK
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
         );

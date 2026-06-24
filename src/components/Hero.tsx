@@ -34,10 +34,10 @@ export function Hero() {
         transition={{ duration: 0.8, ease: "easeOut" }}
         className="flex flex-col items-center text-center z-20 mb-8"
       >
-        <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-white drop-shadow-2xl font-[family-name:var(--font-geist-sans)] max-w-5xl leading-tight" style={{ textShadow: "0 4px 30px rgba(212,175,55,0.2)" }}>
-          Building Dreams Into
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-2xl font-[family-name:var(--font-geist-sans)] max-w-5xl leading-tight" style={{ textShadow: "0 4px 30px rgba(212,175,55,0.2)" }}>
+          Premium Home Interiors in
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-yellow-200 block mt-2">
-            Reality<span className="text-[#d4af37] text-4xl absolute mt-2 ml-2">•</span>
+            Andhra Pradesh, Telangana and Bangaluru<span className="text-[#d4af37] text-4xl absolute mt-2 ml-2">•</span>
           </span>
         </h1>
         <div className="flex items-center gap-2 mt-6 text-sm font-bold tracking-widest text-[#d4af37]">
@@ -53,7 +53,7 @@ export function Hero() {
         className="text-center z-20 mb-16"
       >
         <p className="text-white/70 text-lg">Uncompromising quality and Vastu-compliant designs.</p>
-        <p className="text-white/70 text-lg">Led by Praneeth Katta to build your perfect space.</p>
+        <p className="text-white/70 text-lg">Premium Interiors &amp; Construction with Complete Material Transparency</p>
       </motion.div>
 
       {/* Floating 3D Interaction Panel (Hyper3D layout adapted for Construction) */}
